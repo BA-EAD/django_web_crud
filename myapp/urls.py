@@ -10,7 +10,6 @@ urlpatterns = [
     path('success/', views.success, name="success"),
     path('register_success/', views.register_success, name="register_success"),
     path('forgot_password/', views.forgot_password, name="forgot_password"),
-    path('charts/', views.charts, name="charts"),
     path('tables/', views.tables, name="tables"),
     path('edit/<int:id>', views.edit, name="edit"),
     path('update/<int:id>', views.update, name="update"),

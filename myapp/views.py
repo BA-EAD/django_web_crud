@@ -41,9 +41,10 @@ def register_success(request):
 				mobile=mob, image=image_file)
 				obj.save()
 				request.session['id'] = user.id
-				return redirect(login)
+				return redirect(log_in)
 			return HttpResponse(error)
 		except Exception as e:
+			print(">>>>>>>>>>>", e)
 			return HttpResponse("Something Wrong", e)	
 	else:
 		return render(request, 'myapp/register.html')
@@ -87,13 +88,6 @@ def forgot_password(request):
 		return render(request, 'myapp/forgot-password.html')
 	else:
 		return redirect(index)
-
-def charts(request):
-	if request.user.is_authenticated:
-		return render(request, 'myapp/charts.html')
-	else:
-		return redirect(index)
-
 
 def tables(request):
 	if request.user.is_authenticated:
