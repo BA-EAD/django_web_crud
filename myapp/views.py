@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail, EmailMultiAlternatives
 
 # Create your views here.
 
@@ -51,7 +52,9 @@ def register_success(request):
 
 
 def log_in(request):
-	if request.method == "POST":
+	if request.user.is_authenticated:
+		return redirect(success)
+	elif request.method == "POST":
 		try:
 			username = request.POST["username"]
 			password = request.POST["password"]
@@ -75,7 +78,6 @@ def success(request):
 	else:
 		user = User.objects.get(id=request.session['id'])
 		image = Registr.objects.filter(email=user.email)
-		print("image>>>>>>>", image)
 		contex = {
 		"user" : user,
 		"image" : image
@@ -84,16 +86,21 @@ def success(request):
 
 
 def forgot_password(request):
-	if request.user.is_authenticated:
 		return render(request, 'myapp/forgot-password.html')
-	else:
-		return redirect(index)
 
 def tables(request):
 	if request.user.is_authenticated:
-		if request.method == "GET":	
+		if request.method == "GET":
 			obj = Registr.objects.all()
-			return render(request, 'myapp/tables.html', {"data" : obj})
+			user = User.objects.get(id=request.session['id'])
+			image = Registr.objects.filter(email=user.email)
+			contex = {
+			"user" : user,
+			"image" : image,
+			"data" : obj
+			}	
+			
+			return render(request, 'myapp/tables.html', contex)
 	else:
 		return redirect(log_in)
 
@@ -105,11 +112,12 @@ def edit(request, id):
 	else:
 		return redirect(log_in)
 
+
 def update(request, id):
 	if not request.user.is_authenticated:
 		return redirect(log_in)
 
-	elif request.method == "POST":
+	elif request.method == "PUT":
 		try:
 			first_name = request.POST.get("exampleFirstName")
 			last_name = request.POST.get("exampleLastName")
@@ -117,7 +125,7 @@ def update(request, id):
 			email = request.POST.get("exampleInputEmail")
 			mob = request.POST.get("examplemobile")
 			obj = Registr(id=id, first_name=first_name, last_name=last_name, email=email, 
-				mobile=mob, password=password)
+				mobile=mob, image=image_file)
 			obj.save()
 			return redirect(tables)
 		except Exception as e:
@@ -125,6 +133,70 @@ def update(request, id):
 		
 	else:
 		return redirect(log_in)
+
+
+def edit_profile(request, id):
+	if request.user.is_authenticated:
+		user = User.objects.get(id=id)
+		obj = Registr.objects.get(email=user.email)
+		contex = {
+		"data" : obj,
+		"user" : user
+		}
+		return render(request, 'myapp/profile_update.html', contex)
+	else:
+		return redirect(log_in)
+
+
+def update_profile(request, id):
+	if request.method == "POST":
+		try:
+			user = User.objects.get(id=id)
+			obj = Registr.objects.get(email=user.email)
+			first_name = request.POST.get("exampleFirstName")
+			last_name = request.POST.get("exampleLastName")
+			password = request.POST.get("password")
+			email = request.POST.get("exampleInputEmail")
+			mob = request.POST.get("examplemobile")
+			image_file = request.FILES['image_file']
+			print("image_file>>>>>>>", image_file)
+			error = ""
+			aviavale_mob = Registr.objects.filter(mobile=mob).exists()
+			aviavale_email = User.objects.filter(email=email).exists()
+			if aviavale_mob == True and Registr.objects.filter(mobile=obj.mobile).exists() == False:
+				error = "Moile Number is exits"
+				if aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
+					error = "Mobile and Email is allready exits."		
+			elif aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
+				error = "Email id allready exits Please Enter another Email"
+			else:
+				obj = Registr(id=obj.id, first_name=first_name, last_name=last_name, email=email, 
+					mobile=mob, image=image_file)
+				user.username = first_name
+				user.email = email
+				user.last_name = last_name
+				user.set_password(password)
+				user.save() 
+				obj.save()
+				return success(request)
+			return HttpResponse(error)
+		except Exception as e:
+			print("Exception", e)
+			return HttpResponse("Something Wrong", e)
+		
+	else:
+		return redirect(log_in)
+
+
+def show_profile(request, id):
+	if request.method == "GET":
+		user = User.objects.get(id=id)
+		obj = Registr.objects.get(email=user.email)
+		contex = {
+		"user" : user,
+		"data" : obj
+		}
+		return render(request, 'myapp/show_profile.html', contex)
 
 
 def delete(request, id):
@@ -147,5 +219,34 @@ def log_out(request):
 	else:
 		return redirect(index)
 
-def error(request):
-	return render(request, 'myapp/error.html', {"error": request})
+
+def email(request):
+	if request.method == "POST":
+	    subject = 'Chang the paassword!!!'
+	    # message = "<a href='forgetpassword'>Click</a>'text/html'"
+	    text_content = 'This is an important message.'
+	    html_content = "<a href='http://localhost:8000/change_password/'>Click</a>"
+	    email_from = settings.EMAIL_HOST_USER
+	    recipient_list = [request.POST.get("forgetemail")]
+	    msg = EmailMultiAlternatives(subject, text_content, email_from, recipient_list)
+	    msg.attach_alternative(html_content, "text/html")
+	    msg.send()
+	    # send_mail( subject, message, email_from, recipient_list )
+	    return redirect(log_in)
+	else:
+		return redirect(log_in)
+
+
+def change_password(request):
+	return render(request, "myapp/change_password.html")
+
+
+def confirm_password(request):
+	if request.method == "GET":
+		print(request.user)
+		confirm_password = request.GET("confirm_password")
+		print(confirm_password)
+		return redirect(log_in)
+
+	
+	

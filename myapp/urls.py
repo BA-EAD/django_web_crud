@@ -14,6 +14,12 @@ urlpatterns = [
     path('edit/<int:id>', views.edit, name="edit"),
     path('update/<int:id>', views.update, name="update"),
     path('delete/<int:id>', views.delete, name="delete"),
+    path('edit_profile/<int:id>', views.edit_profile, name="edit_profile"),
+    path('update_profile/<int:id>', views.update_profile, name="update_profile"),
+    path('show_profile/<int:id>', views.show_profile, name="show_profile"),
+    path('email/', views.email, name="email"),
+    path('change_password/', views.change_password, name="change_password"),
+    path('confirm_password', views.confirm_password, name="confirm_password"),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

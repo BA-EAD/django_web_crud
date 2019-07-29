@@ -13,8 +13,8 @@ class Registr(models.Model):
 
 	def save(self, *args, **kwargs):
 		# call the compress function
-		new_image = compress(self.image)
+		new_image = compress(self.image, self.first_name)
 		# set self.image to new_image
-		self.image1 = new_image
+		self.image1 = new_image 
 		# save
 		super().save(*args, **kwargs)

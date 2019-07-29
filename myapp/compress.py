@@ -3,7 +3,7 @@ from io import BytesIO
 from django.core.files import File
 
 size = 128, 128
-def compress(image):
+def compress(image, name):
 		im = Image.open(image)
 		im.thumbnail(size, Image.ANTIALIAS)
 		im_io = BytesIO() 
