@@ -1,7 +1,7 @@
 #					Django-bootstrap-sb2
 
 #					Install the Python, Virtual Envirment and 	   									Django
-step:1	sudo apt update
+step:1	sudo apt update<br>
 step:2	python3 -V
 
 #	Next, let's install pip from the  repositories:
