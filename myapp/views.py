@@ -10,11 +10,16 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 # Create your views here.
 
 def index(request):
-	return render(request, 'myapp/login.html')
+	if request.user.is_authenticated:
+		return redirect(success)
+	else:
+		return render(request, 'myapp/login.html')
 
 
 def register_success(request):
-	if request.method == "POST":
+	if request.user.is_authenticated:
+		return redirect(success)
+	elif request.method == "POST":
 		try:
 			first_name = request.POST.get("exampleFirstName")
 			last_name = request.POST.get("exampleLastName")
@@ -86,7 +91,11 @@ def success(request):
 
 
 def forgot_password(request):
+	if request.user.is_authenticated:
+		return redirect(success)
+	else:
 		return render(request, 'myapp/forgot-password.html')
+
 
 def tables(request):
 	if request.user.is_authenticated:
@@ -149,54 +158,56 @@ def edit_profile(request, id):
 
 
 def update_profile(request, id):
-	if request.method == "POST":
-		try:
-			user = User.objects.get(id=id)
-			obj = Registr.objects.get(email=user.email)
-			first_name = request.POST.get("exampleFirstName")
-			last_name = request.POST.get("exampleLastName")
-			password = request.POST.get("password")
-			email = request.POST.get("exampleInputEmail")
-			mob = request.POST.get("examplemobile")
-			image_file = request.FILES['image_file']
-			print("image_file>>>>>>>", image_file)
-			error = ""
-			aviavale_mob = Registr.objects.filter(mobile=mob).exists()
-			aviavale_email = User.objects.filter(email=email).exists()
-			if aviavale_mob == True and Registr.objects.filter(mobile=obj.mobile).exists() == False:
-				error = "Moile Number is exits"
-				if aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
-					error = "Mobile and Email is allready exits."		
-			elif aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
-				error = "Email id allready exits Please Enter another Email"
-			else:
-				obj = Registr(id=obj.id, first_name=first_name, last_name=last_name, email=email, 
-					mobile=mob, image=image_file)
-				user.username = first_name
-				user.email = email
-				user.last_name = last_name
-				user.set_password(password)
-				user.save() 
-				obj.save()
-				return success(request)
-			return HttpResponse(error)
-		except Exception as e:
-			print("Exception", e)
-			return HttpResponse("Something Wrong", e)
-		
+	if request.user.is_authenticated:
+		if request.method == "POST":
+			try:
+				user = User.objects.get(id=id)
+				obj = Registr.objects.get(email=user.email)
+				first_name = request.POST.get("exampleFirstName")
+				last_name = request.POST.get("exampleLastName")
+				password = request.POST.get("password")
+				email = request.POST.get("exampleInputEmail")
+				mob = request.POST.get("examplemobile")
+				image_file = request.FILES['image_file']
+				print("image_file>>>>>>>", image_file)
+				error = ""
+				aviavale_mob = Registr.objects.filter(mobile=mob).exists()
+				aviavale_email = User.objects.filter(email=email).exists()
+				if aviavale_mob == True and Registr.objects.filter(mobile=obj.mobile).exists() == False:
+					error = "Moile Number is exits"
+					if aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
+						error = "Mobile and Email is allready exits."		
+				elif aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
+					error = "Email id allready exits Please Enter another Email"
+				else:
+					obj = Registr(id=obj.id, first_name=first_name, last_name=last_name, email=email, 
+						mobile=mob, image=image_file)
+					user.username = first_name
+					user.email = email
+					user.last_name = last_name
+					user.set_password(password)
+					user.save() 
+					obj.save()
+					return success(request)
+				return HttpResponse(error)
+			except Exception as e:
+				print("Exception", e)
+				return HttpResponse("Something Wrong", e)
 	else:
 		return redirect(log_in)
 
 
 def show_profile(request, id):
-	if request.method == "GET":
-		user = User.objects.get(id=id)
-		obj = Registr.objects.get(email=user.email)
-		contex = {
-		"user" : user,
-		"data" : obj
-		}
-		return render(request, 'myapp/show_profile.html', contex)
+	if request.user.is_authenticated:
+		if request.method == "GET":
+			user = User.objects.get(id=id)
+			obj = Registr.objects.get(email=user.email)
+			contex = {
+			"user" : user,
+			"data" : obj
+			}
+			return render(request, 'myapp/show_profile.html', contex)
+	return redirect(log_in)
 
 
 def delete(request, id):
@@ -247,6 +258,3 @@ def confirm_password(request):
 		confirm_password = request.GET("confirm_password")
 		print(confirm_password)
 		return redirect(log_in)
-
-	
-	
