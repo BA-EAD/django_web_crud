@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,11 +27,12 @@
                     <div class="col-lg-7">
                         <div class="p-5">
                             <div class="text-center">
+                                <a href="{% url 'success' %}" style="float: left;" >Back</a>
                                 <h1 class="h4 text-gray-900 mb-4">Show Profile</h1>
                             </div>
                         </div>
                         <div class="card p-5">
-                            <img src="{{ data.image.url }}" alt="{{ user.username }}" style="width:100%">
+                            <img width="500px" height="500px" src="{{ data.image.url }}" alt="{{ user.username }}" style="width:100%">
                             <h1>{{ user.username }}</h1>
                             <p class="title">{{ user.last_name }}</p>
                             <p>{{ user.email }}</p>

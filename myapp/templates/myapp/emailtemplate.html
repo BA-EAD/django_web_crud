@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Change Password</title>
+</head>
+<body>
+	<center>
+    	<h1>Change Password</h1>
+        <form action="http://localhost:8000/confirm_password/">
+            <label for="confirm_password">Enter Password:</label>
+            <input type="password" name="confirm_password"><br><br>
+            <input type="hidden" name="email" value="{{ recipient_list }}"><br>
+            <input type="submit" value="Change Password">
+        </form>
+    </center>
+</body>
+</html>

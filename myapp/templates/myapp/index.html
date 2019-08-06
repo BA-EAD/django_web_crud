@@ -20,8 +20,8 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        {% include 'myapp/sidebar.html' %}
         <!-- End of Sidebar -->
+        {% include 'myapp/sidebar.html' %}
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
             <!-- Main Content -->
@@ -37,6 +37,13 @@
                     </div>
                 </div>
                 <!-- End of Main Content -->
+                <div>
+                    <label>Device Name : </label>{{ device_name }}<br>
+                    <label>Language : </label>{{ language }}<br>
+                    <label>Server Name : </label>{{ server_name }}<br>
+                    <label>Port Number : </label>{{ Port }}<br>
+                    <label>Browser :</label>{{ var1 }}<br>
+                </div>
                 <!-- Footer -->
                 {% include 'myapp/footer.html' %}
                 <!-- End of Footer -->

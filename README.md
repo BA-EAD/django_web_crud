@@ -77,6 +77,9 @@ DATABASES = {<br>
     }<br>
 }<br>
 
+# Install Pil library for image
+pip install Pillow
+
 # Migrate the project
 python3 manage.py makemigrations<br>
 python3 manage.py migrate<br>

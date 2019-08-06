@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.template.loader import render_to_string
 from django.core.mail import send_mail, EmailMultiAlternatives
 
 # Create your views here.
@@ -30,6 +31,13 @@ def register_success(request):
 			error = ""
 			aviavale_mob = Registr.objects.filter(mobile=mob).exists()
 			aviavale_email = User.objects.filter(email=email).exists()
+			var = request.headers['User-Agent']
+			var1 = var.split()
+			if "Chrome" in var:
+				var1 = var1[-2]
+			else:
+				var1 = var1[-1]
+			
 			if aviavale_mob:
 				error = "Moile Number is exits"
 				if aviavale_email:
@@ -45,6 +53,7 @@ def register_success(request):
 				user.save()
 				obj = Registr(first_name=first_name, last_name=last_name, email=email, 
 				mobile=mob, image=image_file)
+				obj.browser = var1
 				obj.save()
 				request.session['id'] = user.id
 				return redirect(log_in)
@@ -60,6 +69,7 @@ def log_in(request):
 	if request.user.is_authenticated:
 		return redirect(success)
 	elif request.method == "POST":
+		print(request.user.is_superuser)
 		try:
 			username = request.POST["username"]
 			password = request.POST["password"]
@@ -81,11 +91,19 @@ def success(request):
 	if not request.user.is_authenticated:
 		return redirect(index)
 	else:
+		device_name = request.environ['GNOME_SHELL_SESSION_MODE']
+		language = request.environ['LANGUAGE']
+		server_name = request.environ['SERVER_NAME']
+		Port = request.environ['SERVER_PORT']
 		user = User.objects.get(id=request.session['id'])
 		image = Registr.objects.filter(email=user.email)
 		contex = {
 		"user" : user,
-		"image" : image
+		"image" : image,
+		"device_name" : device_name,
+		"language" : language,
+		"server_name" : server_name,
+		"Port" : Port,
 		}
 		return render(request, 'myapp/index.html', contex )
 
@@ -165,27 +183,35 @@ def update_profile(request, id):
 				obj = Registr.objects.get(email=user.email)
 				first_name = request.POST.get("exampleFirstName")
 				last_name = request.POST.get("exampleLastName")
-				password = request.POST.get("password")
 				email = request.POST.get("exampleInputEmail")
 				mob = request.POST.get("examplemobile")
-				image_file = request.FILES['image_file']
-				print("image_file>>>>>>>", image_file)
+				image_file = request.FILES.get('image_file')
 				error = ""
-				aviavale_mob = Registr.objects.filter(mobile=mob).exists()
-				aviavale_email = User.objects.filter(email=email).exists()
-				if aviavale_mob == True and Registr.objects.filter(mobile=obj.mobile).exists() == False:
-					error = "Moile Number is exits"
-					if aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
-						error = "Mobile and Email is allready exits."		
-				elif aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
-					error = "Email id allready exits Please Enter another Email"
+				# aviavale_mob = Registr.objects.filter(mobile=mob).exists()
+				# aviavale_email = User.objects.filter(email=email).exists()
+				# if aviavale_mob == True and Registr.objects.filter(mobile=obj.mobile).exists() == False:
+				# 	error = "Moile Number is exits"
+				# 	if aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
+				# 		error = "Mobile and Email is allready exits."		
+				# elif aviavale_email and Registr.objects.filter(email=obj.email).exists() == False:
+				# 	error = "Email id allready exits Please Enter another Email"
+				if image_file == None:
+					obj.first_name = first_name
+					obj.last_name = last_name
+					obj.email = email
+					obj.mobile = mob
+					user.username = first_name
+					user.email = email
+					user.last_name = last_name
+					user.save() 
+					obj.save()
+					return success(request)
 				else:
 					obj = Registr(id=obj.id, first_name=first_name, last_name=last_name, email=email, 
 						mobile=mob, image=image_file)
 					user.username = first_name
 					user.email = email
 					user.last_name = last_name
-					user.set_password(password)
 					user.save() 
 					obj.save()
 					return success(request)
@@ -233,28 +259,28 @@ def log_out(request):
 
 def email(request):
 	if request.method == "POST":
-	    subject = 'Chang the paassword!!!'
-	    # message = "<a href='forgetpassword'>Click</a>'text/html'"
-	    text_content = 'This is an important message.'
-	    html_content = "<a href='http://localhost:8000/change_password/'>Click</a>"
-	    email_from = settings.EMAIL_HOST_USER
-	    recipient_list = [request.POST.get("forgetemail")]
-	    msg = EmailMultiAlternatives(subject, text_content, email_from, recipient_list)
-	    msg.attach_alternative(html_content, "text/html")
-	    msg.send()
-	    # send_mail( subject, message, email_from, recipient_list )
-	    return redirect(log_in)
+		recipient_list = [request.POST.get("forgetemail")]
+		subject = 'Chang the paassword!!!'
+		text_content = 'This is an important message.'
+		html_content = render_to_string("myapp/emailtemplate.html", {"recipient_list" :
+			request.POST.get("forgetemail")})
+		email_from = settings.EMAIL_HOST_USER
+		msg = EmailMultiAlternatives(subject, text_content, email_from, recipient_list)
+		msg.attach_alternative(html_content, "text/html")
+		msg.send()
+		return redirect(log_in)
 	else:
 		return redirect(log_in)
 
 
-def change_password(request):
-	return render(request, "myapp/change_password.html")
-
-
 def confirm_password(request):
-	if request.method == "GET":
-		print(request.user)
-		confirm_password = request.GET("confirm_password")
-		print(confirm_password)
-		return redirect(log_in)
+	confirm_password = request.GET["confirm_password"]
+	email = request.GET["email"]
+	print(email)
+	obj = User.objects.filter(email = email)
+	if not obj.exists():
+		return HttpResponse("Email does not exists.")
+	for i in obj:
+		i.set_password(confirm_password)
+		i.save()
+	return redirect(log_in)	

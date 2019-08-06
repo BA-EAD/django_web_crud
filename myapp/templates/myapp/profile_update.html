@@ -26,7 +26,8 @@
                     <div class="col-lg-7">
                         <div class="p-5">
                             <div class="text-center">
-                                <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
+                                <a href="{% url 'success' %}" style="float: left;" >Back</a>
+                                <h1 class="h4 text-gray-900 mb-4">Update Profile</h1>
                             </div>
                             <form name="registration" class="user" action="{% url 'update_profile' user.id %}" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
@@ -43,14 +44,6 @@
                                 </div>
                                 <div class="form-group">
                                     <input type="text" class="form-control form-control-user" name="examplemobile" placeholder="Mobile Number" value="{{ data.mobile }}">
-                                </div>
-                                <div class="form-group row">
-                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                        <input type="password" class="form-control form-control-user" name="password" id="password" placeholder="Password">
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <input type="password" class="form-control form-control-user" name="confirmpassword" id="confirmpassword" placeholder="Repeat Password">
-                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <img id="imgFileUpload" alt="Change Image" title="Change Image" src="{{ data.image1.url }}" style="cursor: pointer">
@@ -118,15 +111,6 @@
                     // by the built-in "email" rule
                     email: true
                 },
-                password: {
-                    required: true,
-                    minlength: 8
-                },
-                confirmpassword: {
-                    required: true,
-                    minlength: 8,
-                    equalTo: "#password"
-                },
                 examplemobile: {
                     required: true,
                     minlength: 10,
@@ -144,14 +128,6 @@
                 },
                 exampleLastName: {
                     required: "Please enter your lastname"
-                },
-                password: {
-                    required: "Please provide a password",
-                    minlength: "Your password must be at least 8 characters long"
-                },
-                exampleInputEmail: {
-                    required: "Please enter a  email address",
-                    email: "please enter a valid email address"
                 },
                 confirmpassword: {
                     required: "Please provide a password",
