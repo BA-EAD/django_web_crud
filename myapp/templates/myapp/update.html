@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Update</title>
+    <!-- Custom fonts for this template-->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="{% static 'css/sb-admin-2.css' %}" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-primary">
+    <div class="container">
+        <div class="card o-hidden border-0 shadow-lg my-5">
+            <div class="card-body p-0">
+                <!-- Nested Row within Card Body -->
+                <div class="row">
+                    <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
+                    <div class="col-lg-7">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
+                            </div>
+                            <form name="registration" class="user" action="{% url 'update' data.id %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input type="text" class="form-control form-control-user" name="exampleFirstName" placeholder="First Name" value="{{ data.first_name }}">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control form-control-user" name="exampleLastName" placeholder="Last Name" value="{{ data.last_name }}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" class="form-control form-control-user" name="exampleInputEmail" placeholder="Email Address" value="{{ data.email }}">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control form-control-user" name="examplemobile" placeholder="Mobile Number" value="{{ data.mobile }}">
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input type="password" class="form-control form-control-user" name="password" id="password" placeholder="Password" value="{{ data.password }}">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="password" class="form-control form-control-user" name="confirmpassword" id="confirmpassword" placeholder="Repeat Password" value="{{ data.password }}">
+                                    </div>
+                                </div>
+                                <input type="submit" class="btn btn-primary btn-user btn-block" value="Update Account">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+    <!-- Javascript or jquery for validaions -->
+    <!-- <script src="https://cdn.jsdelivr.net/jquery/1.12.4/jquery.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js">
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+
+        jQuery.validator.addMethod("noSpace", function(value, element) {
+            return value.indexOf(" ") < 0 && value != "";
+        }, "No space please and don't leave it empty");
+
+        $("form[name='registration']").validate({
+            // Specify validation rules
+            rules: {
+                exampleFirstName: {
+                    required: true,
+                    noSpace: true
+                },
+                exampleLastName: {
+                    required: true,
+                    noSpace: true
+                },
+
+                exampleInputEmail: {
+                    required: true,
+                    noSpace: true,
+                    // Specify that email should be validated
+                    // by the built-in "email" rule
+                    email: true
+                },
+                password: {
+                    required: true,
+                    minlength: 8
+                },
+                confirmpassword: {
+                    required: true,
+                    minlength: 8,
+                    equalTo: "#password"
+                },
+                examplemobile: {
+                    required: true,
+                    minlength: 10,
+                    noSpace: true
+                }
+            },
+            // Specify validation error messages
+            messages: {
+                exampleFirstName: {
+
+                    required: "Please enter your firstname",
+                },
+                exampleLastName: {
+                    required: "Please enter your lastname"
+                },
+                password: {
+                    required: "Please provide a password",
+                    minlength: "Your password must be at least 8 characters long"
+                },
+                exampleInputEmail: {
+                    required: "Please enter a  email address",
+                    email: "please enter a valid email address"
+                },
+                confirmpassword: {
+                    required: "Please provide a password",
+                    minlength: "Your password must be at least 8 characters long",
+                    equalTo: "Please enter the same password as above"
+                },
+                examplemobile: {
+                    required: "Please Enter a Mobile Number",
+                    minlength: "Your password must be at least 10 characters long"
+                }
+            },
+            // Make sure the form is submitted to the destination defined
+            // in the "action" attribute of the form when valid
+            submitHandler: function(form) {
+                form.submit();
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>
